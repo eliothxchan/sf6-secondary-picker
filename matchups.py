@@ -484,17 +484,19 @@ matchups = {
     }, 
 }
 
-main = "blanka"
+# max 10 matchups to remain a "main"
+
+main = "manon"
 # I do not want to play these characters at all
 do_not_want = []
 # I will play my main in this matchup no matter what
 forced_matchups = []
 # Only play sub if winrate is better than this much
-better_threshold = 3
+better_threshold = 0
 # Only play sub if original win rate is lower than this
 ok_threshold = 100
 # Only play sub if sub's win rate is better than this
-sub_threshold = 50
+sub_threshold = 0
 
 new_winrate = 0
 new_char = main
@@ -502,6 +504,11 @@ new_char = main
 play_matchups = []
 
 overall_stats = []
+
+regular_winrates = [matchups[main][x] for x in matchups[main]]
+regular_winrate = sum(regular_winrates)/len(regular_winrates)
+
+max_replaced_matchups = 10
 
 for character in matchups.keys():
     if character not in do_not_want and character != main:
@@ -521,16 +528,19 @@ for character in matchups.keys():
             else:
                 best_winrates.append(existing_char_winrate)
 
-        overall_stats.append({
-            "character": character,
-            "winrate": sum(best_winrates)/len(best_winrates),
-            "matchups": matchups_to_play
-        })
+        if len(matchups_to_play) <= max_replaced_matchups:
+            overall_stats.append({
+                "character": character,
+                "winrate": sum(best_winrates)/len(best_winrates),
+                "matchups": matchups_to_play
+            })
 
 from operator import attrgetter
 stats = sorted(overall_stats, key =lambda item: item["winrate"], reverse=True)
 
 
+print(f"Your main is {main}")
+print(f"Regular winrate is {regular_winrate}")
 for index, i in enumerate(stats[0:3]):
     print(f"Sub #{index+1} {i['character']}")
     print(f"New combined winrate {i['winrate']}")
